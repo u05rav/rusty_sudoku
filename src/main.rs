@@ -26,7 +26,7 @@ impl Cell {
         }
         return 0;
     }
-    fn eliminate(&mut self, val: u32) {
+    fn eliminate(&mut self, val: usize) {
         self.possible_values[(val as usize) - 1] = false
     }
 }
@@ -54,7 +54,7 @@ impl Game {
             if num > 0 {
                 for possible_val in 1..10 {
                     if possible_val != num {
-                        self.cells[cell].eliminate(possible_val);
+                        self.cells[cell].eliminate(possible_val as usize);
                     }
                 }
             }
@@ -103,6 +103,46 @@ impl Game {
         }
         score
     }
+
+    fn iterate(&mut self) {
+        for c in 0..81 {
+            let self_row = c / 9;
+            let self_col = c % 9;
+
+            let self_cell_row = (self_row / 3) * 3;
+            let self_cell_col = (self_col / 3) * 3;
+
+            for col in 0..9 {
+                if col != self_col {
+                    let currentVal = self.get(col, self_row).getCurrentVal();
+                    if currentVal != 0 {
+                        self.cells[c].eliminate(currentVal)
+                    }
+                }
+            }
+
+            for row in 0..9 {
+                if row != self_row {
+                    let currentVal = self.get(self_col, row).getCurrentVal();
+                    if currentVal != 0 {
+                        self.cells[c].eliminate(currentVal)
+                    }
+                }
+            }
+
+            for col in self_cell_col..self_cell_col + 3 {
+                for row in self_cell_row..self_cell_row + 3 {
+                    if col == self_col && row == self_row {
+                        continue;
+                    }
+                    let currentVal = self.get(col, row).getCurrentVal();
+                    if currentVal != 0 {
+                        self.cells[c].eliminate(currentVal)
+                    }
+                }
+            }
+        }
+    }
 }
 
 struct Loader {
@@ -134,4 +174,12 @@ fn main() {
     game.show();
 
     println!("score = {}", game.score());
+
+    for i in 1..10 {
+        game.iterate();
+
+        game.show();
+
+        println!("score = {}", game.score());
+    }
 }
