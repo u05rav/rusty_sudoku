@@ -1,71 +1,78 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 
-#[derive (Clone, Copy)]
+#[derive(Clone, Copy)]
 struct Cell {
     possible_values: [bool; 9],
 }
 
 impl Cell {
-    fn new() -> Cell{
+    fn new() -> Cell {
         let vals: [bool; 9] = [true; 9];
-        Cell{possible_values: vals}
+        Cell {
+            possible_values: vals,
+        }
     }
 
     fn getCurrentVal(&self) -> usize {
-
         let mut pos: Vec<usize> = Vec::new();
         for i in 0..9 {
             if self.possible_values[i] {
-                pos.push(i+1)
+                pos.push(i + 1)
             }
         }
         if pos.len() == 1 {
             return pos[0];
         }
         return 0;
-
     }
 }
 
 struct Game {
     cells: [Cell; 81],
-    solution: [i32; 81]
+    solution: [i32; 81],
 }
 
 impl Game {
     fn new() -> Game {
         let cells: [Cell; 81] = [Cell::new(); 81];
         let solution: [i32; 81] = [0; 81];
-        Game{ cells, solution }
-            
+        Game { cells, solution }
     }
 
     fn load(&mut self, data: &str) {
         for cell in 0..81 {
-            let num = data.chars().nth(cell).expect("should be char").to_digit(10).expect("shoud work");
+            let num = data
+                .chars()
+                .nth(cell)
+                .expect("should be char")
+                .to_digit(10)
+                .expect("shoud work");
             if num > 0 {
                 for possible_val in 0..9 {
                     if possible_val != num - 1 {
                         self.cells[cell].possible_values[possible_val as usize] = false
-
                     }
                 }
             }
         }
 
         for i in 0..81 {
-            let num = data.chars().nth(i).expect("should be char").to_digit(10).expect("shoud work");
+            let num = data
+                .chars()
+                .nth(i)
+                .expect("should be char")
+                .to_digit(10)
+                .expect("shoud work");
             self.solution[i] = num as i32
         }
     }
 
-    fn get(& self, x: usize, y:usize) -> &Cell {
-        &self.cells[x+y*9]
+    fn get(&self, x: usize, y: usize) -> &Cell {
+        &self.cells[x + y * 9]
     }
 
     fn show(&self) {
-
         for j in 0..9 {
             if j % 3 == 0 {
                 println!("+-----------+");
@@ -74,7 +81,7 @@ impl Game {
                 if i % 3 == 0 {
                     print!("|");
                 }
-                print!("{}", self.get(i,j).getCurrentVal());
+                print!("{}", self.get(i, j).getCurrentVal());
             }
 
             print!("|\n");
@@ -83,11 +90,10 @@ impl Game {
     }
 
     fn score(&self) -> usize {
-
         let mut score = 0;
         for j in 0..9 {
             for i in 0..9 {
-                if self.get(i,j).getCurrentVal() == 0 {
+                if self.get(i, j).getCurrentVal() == 0 {
                     score = score + 1
                 }
             }
@@ -112,7 +118,6 @@ impl Loader {
         let _ = self.reader.read_line(&mut line_buffer);
         line_buffer
     }
-
 }
 
 fn main() {
