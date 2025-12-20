@@ -208,8 +208,6 @@ fn main() {
         let mut game = Game::new();
         game.load(&loader.get_line());
 
-        game.show();
-
         match game.solve() {
             Ok(_) => println!("Solved"),
             Err(_) => println!("Failed"),
