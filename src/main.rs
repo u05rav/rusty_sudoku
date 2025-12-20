@@ -202,24 +202,22 @@ impl Loader {
 }
 
 fn main() {
-    let mut game = Game::new();
-    println!("Created Sudoku Game");
-
     let mut loader = Loader::new("./data/small.csv");
 
-    game.load(&loader.get_line());
+    for _ in 1..10 {
+        let mut game = Game::new();
+        game.load(&loader.get_line());
 
-    game.show();
+        game.show();
 
-    match game.solve() {
-        Ok(_) => println!("Solved"),
-        Err(_) => println!("Failed"),
+        match game.solve() {
+            Ok(_) => println!("Solved"),
+            Err(_) => println!("Failed"),
+        }
+
+        match game.check() {
+            Ok(s) => println!("{}", s),
+            Err(s) => println!("{}", s),
+        }
     }
-
-    match game.check() {
-        Ok(s) => println!("{}", s),
-        Err(s) => println!("{}", s),
-    }
-
-    game.show()
 }
