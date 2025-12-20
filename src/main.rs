@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{self, BufRead};
+use std::process::exit;
 
 #[derive(Clone, Copy)]
 struct Cell {
@@ -194,28 +195,44 @@ impl Loader {
         Loader { reader }
     }
 
-    fn get_line(&mut self) -> String {
+    fn get_line(&mut self) -> Result<String, &str> {
         let mut line_buffer = String::new();
-        let _ = self.reader.read_line(&mut line_buffer);
-        line_buffer
+        match self.reader.read_line(&mut line_buffer) {
+            Ok(len) => {
+                if len > 0 {
+                    return Ok(line_buffer);
+                }
+                return Err("");
+            }
+            Err(e) => return Err(""),
+        }
+    }
+}
+
+fn solve(data: &str) {
+    let mut game = Game::new();
+    game.load(&data);
+
+    match game.solve() {
+        Ok(_) => println!("Solved"),
+        Err(_) => println!("Failed"),
+    }
+
+    match game.check() {
+        Ok(s) => println!("{}", s),
+        Err(s) => println!("{}", s),
     }
 }
 
 fn main() {
     let mut loader = Loader::new("./data/small.csv");
 
-    for _ in 1..10 {
-        let mut game = Game::new();
-        game.load(&loader.get_line());
+    loop {
+        let data = loader.get_line();
 
-        match game.solve() {
-            Ok(_) => println!("Solved"),
-            Err(_) => println!("Failed"),
-        }
-
-        match game.check() {
-            Ok(s) => println!("{}", s),
-            Err(s) => println!("{}", s),
+        match loader.get_line() {
+            Ok(data) => solve(&data),
+            Err(_) => exit(0),
         }
     }
 }
