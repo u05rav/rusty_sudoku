@@ -14,7 +14,7 @@ impl Cell {
         }
     }
 
-    fn getCurrentVal(&self) -> usize {
+    fn get_current_val(&self) -> usize {
         let mut pos: Vec<usize> = Vec::new();
         for i in 0..9 {
             if self.possible_values[i] {
@@ -84,7 +84,7 @@ impl Game {
                 if i % 3 == 0 {
                     print!("|");
                 }
-                print!("{}", self.get(i, j).getCurrentVal());
+                print!("{}", self.get(i, j).get_current_val());
             }
 
             print!("|\n");
@@ -96,7 +96,7 @@ impl Game {
         let mut score = 0;
         for j in 0..9 {
             for i in 0..9 {
-                if self.get(i, j).getCurrentVal() == 0 {
+                if self.get(i, j).get_current_val() == 0 {
                     score = score + 1
                 }
             }
@@ -114,18 +114,18 @@ impl Game {
 
             for col in 0..9 {
                 if col != self_col {
-                    let currentVal = self.get(col, self_row).getCurrentVal();
-                    if currentVal != 0 {
-                        self.cells[c].eliminate(currentVal)
+                    let current_val = self.get(col, self_row).get_current_val();
+                    if current_val != 0 {
+                        self.cells[c].eliminate(current_val)
                     }
                 }
             }
 
             for row in 0..9 {
                 if row != self_row {
-                    let currentVal = self.get(self_col, row).getCurrentVal();
-                    if currentVal != 0 {
-                        self.cells[c].eliminate(currentVal)
+                    let current_val = self.get(self_col, row).get_current_val();
+                    if current_val != 0 {
+                        self.cells[c].eliminate(current_val)
                     }
                 }
             }
@@ -135,9 +135,9 @@ impl Game {
                     if col == self_col && row == self_row {
                         continue;
                     }
-                    let currentVal = self.get(col, row).getCurrentVal();
-                    if currentVal != 0 {
-                        self.cells[c].eliminate(currentVal)
+                    let current_val = self.get(col, row).get_current_val();
+                    if current_val != 0 {
+                        self.cells[c].eliminate(current_val)
                     }
                 }
             }
@@ -175,7 +175,7 @@ fn main() {
 
     println!("score = {}", game.score());
 
-    for i in 1..10 {
+    for _ in 1..10 {
         game.iterate();
 
         game.show();
