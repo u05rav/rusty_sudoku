@@ -33,13 +33,13 @@ impl Cell {
 
 struct Game {
     cells: [Cell; 81],
-    solution: [i32; 81],
+    solution: [usize; 81],
 }
 
 impl Game {
     fn new() -> Game {
         let cells: [Cell; 81] = [Cell::new(); 81];
-        let solution: [i32; 81] = [0; 81];
+        let solution: [usize; 81] = [0; 81];
         Game { cells, solution }
     }
 
@@ -63,11 +63,12 @@ impl Game {
         for i in 0..81 {
             let num = data
                 .chars()
-                .nth(i)
+                .nth(i + 82)
                 .expect("should be char")
                 .to_digit(10)
                 .expect("shoud work");
-            self.solution[i] = num as i32
+
+            self.solution[i] = num as usize
         }
     }
 
@@ -162,6 +163,24 @@ impl Game {
             last_score = score;
         }
     }
+
+    fn check(&self) -> Result<&str, String> {
+        for c in 0..81 {
+            let col = c % 9;
+            let row = c / 9;
+
+            let expected_val = self.solution[c];
+            let actual_val = self.cells[c].get_current_val();
+
+            if expected_val != actual_val {
+                return Err(format!(
+                    "failure at {},{} : {} != {}",
+                    col, row, actual_val, expected_val
+                ));
+            }
+        }
+        return Ok("Solution matches");
+    }
 }
 
 struct Loader {
@@ -195,6 +214,11 @@ fn main() {
     match game.solve() {
         Ok(_) => println!("Solved"),
         Err(_) => println!("Failed"),
+    }
+
+    match game.check() {
+        Ok(s) => println!("{}", s),
+        Err(s) => println!("{}", s),
     }
 
     game.show()
