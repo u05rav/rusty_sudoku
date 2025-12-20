@@ -26,6 +26,9 @@ impl Cell {
         }
         return 0;
     }
+    fn eliminate(&mut self, val: u32) {
+        self.possible_values[(val as usize) - 1] = false
+    }
 }
 
 struct Game {
@@ -49,9 +52,9 @@ impl Game {
                 .to_digit(10)
                 .expect("shoud work");
             if num > 0 {
-                for possible_val in 0..9 {
-                    if possible_val != num - 1 {
-                        self.cells[cell].possible_values[possible_val as usize] = false
+                for possible_val in 1..10 {
+                    if possible_val != num {
+                        self.cells[cell].eliminate(possible_val);
                     }
                 }
             }
