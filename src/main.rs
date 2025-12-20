@@ -143,6 +143,25 @@ impl Game {
             }
         }
     }
+
+    fn solve(&mut self) -> Result<&str, &str> {
+        let mut last_score = self.score();
+
+        loop {
+            self.iterate();
+            let score = self.score();
+
+            if score == 0 {
+                return Ok("success");
+            }
+
+            if score == last_score {
+                return Err("failure");
+            }
+
+            last_score = score;
+        }
+    }
 }
 
 struct Loader {
@@ -173,13 +192,10 @@ fn main() {
 
     game.show();
 
-    println!("score = {}", game.score());
-
-    for _ in 1..10 {
-        game.iterate();
-
-        game.show();
-
-        println!("score = {}", game.score());
+    match game.solve() {
+        Ok(_) => println!("Solved"),
+        Err(_) => println!("Failed"),
     }
+
+    game.show()
 }
