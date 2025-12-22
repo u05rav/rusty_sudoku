@@ -30,6 +30,17 @@ impl Cell {
     fn eliminate(&mut self, val: usize) {
         self.possible_values[(val as usize) - 1] = false
     }
+
+    fn allows(&self, val: usize) -> bool {
+        self.possible_values[(val as usize) - 1]
+    }
+
+    fn set(&mut self, val: usize) {
+        for i in 0..9 {
+            self.possible_values[i] = false;
+        }
+        self.possible_values[(val as usize) - 1] = true
+    }
 }
 
 struct Game {
@@ -77,6 +88,10 @@ impl Game {
         &self.cells[x + y * 9]
     }
 
+    fn get_mut(&mut self, x: usize, y: usize) -> &mut Cell {
+        &mut self.cells[x + y * 9]
+    }
+
     fn show(&self) {
         for j in 0..9 {
             if j % 3 == 0 {
@@ -111,8 +126,8 @@ impl Game {
             let self_row = c / 9;
             let self_col = c % 9;
 
-            let self_cell_row = (self_row / 3) * 3;
-            let self_cell_col = (self_col / 3) * 3;
+            let self_block_row = (self_row / 3) * 3;
+            let self_block_col = (self_col / 3) * 3;
 
             for col in 0..9 {
                 if col != self_col {
@@ -132,8 +147,8 @@ impl Game {
                 }
             }
 
-            for col in self_cell_col..self_cell_col + 3 {
-                for row in self_cell_row..self_cell_row + 3 {
+            for col in self_block_col..self_block_col + 3 {
+                for row in self_block_row..self_block_row + 3 {
                     if col == self_col && row == self_row {
                         continue;
                     }
@@ -144,6 +159,66 @@ impl Game {
                 }
             }
         }
+
+        for col in 0..9 {
+            for num in 1..10 {
+                let mut count = 0;
+                let mut hit = 10;
+                for row in 0..9 {
+                    if self.get(col, row).allows(num) {
+                        count = count + 1;
+                        hit = row;
+                    }
+                }
+                if count == 1 {
+                    self.set(col, hit, num)
+                }
+            }
+        }
+
+        for row in 0..9 {
+            for num in 1..10 {
+                let mut count = 0;
+                let mut hit = 10;
+                for col in 0..9 {
+                    if self.get(col, row).allows(num) {
+                        count = count + 1;
+                        hit = col;
+                    }
+                }
+                if count == 1 {
+                    self.set(hit, row, num)
+                }
+            }
+        }
+
+        for block_col_start in [0, 3, 6] {
+            for block_row_start in [0, 3, 6] {
+                for num in 1..10 {
+                    let mut count = 0;
+                    let mut hit_col = 10;
+                    let mut hit_row = 10;
+                    for col_offset in [0, 1, 2] {
+                        for row_offset in [0, 1, 2] {
+                            let x = block_col_start + col_offset;
+                            let y = block_row_start + row_offset;
+                            if self.get(x, y).allows(num) {
+                                count = count + 1;
+                                hit_col = x;
+                                hit_row = y;
+                            }
+                        }
+                    }
+                    if count == 1 {
+                        self.set(hit_col, hit_row, num)
+                    }
+                }
+            }
+        }
+    }
+
+    fn set(&mut self, col: usize, row: usize, num: usize) {
+        self.get_mut(col, row).set(num);
     }
 
     fn solve(&mut self) -> Result<&str, &str> {
@@ -204,35 +279,50 @@ impl Loader {
                 }
                 return Err("");
             }
-            Err(e) => return Err(""),
+            Err(_) => return Err(""),
         }
     }
 }
 
-fn solve(data: &str) {
+fn solve(data: &str) -> bool {
     let mut game = Game::new();
     game.load(&data);
 
-    match game.solve() {
-        Ok(_) => println!("Solved"),
-        Err(_) => println!("Failed"),
-    }
+    let solved = match game.solve() {
+        Ok(_) => true,
+        Err(_) => false,
+    };
 
-    match game.check() {
-        Ok(s) => println!("{}", s),
-        Err(s) => println!("{}", s),
-    }
+    let correct = match game.check() {
+        Ok(_) => true,
+        Err(_) => false,
+    };
+
+    return solved && correct;
 }
 
 fn main() {
-    let mut loader = Loader::new("./data/small.csv");
+    //let mut loader = Loader::new("./data/small.csv");
+    let mut loader = Loader::new("./data/sudoku.csv");
 
+    let mut passed = 0;
+    let mut total = 0;
     loop {
-        let data = loader.get_line();
+        println!("{},{}", total, total - passed);
 
         match loader.get_line() {
-            Ok(data) => solve(&data),
-            Err(_) => exit(0),
+            Ok(data) => {
+                if solve(&data) {
+                    passed = passed + 1
+                } else {
+                    println!("failed: {}", data)
+                }
+                total = total + 1
+            }
+            Err(_) => {
+                println!("results = {}/{}", passed, total);
+                exit(0);
+            }
         }
     }
 }
