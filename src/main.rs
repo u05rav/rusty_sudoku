@@ -63,6 +63,7 @@ impl Game {
                 .expect("should be char")
                 .to_digit(10)
                 .expect("shoud work");
+
             if num > 0 {
                 for possible_val in 1..10 {
                     if possible_val != num {
@@ -90,6 +91,40 @@ impl Game {
 
     fn get_mut(&mut self, x: usize, y: usize) -> &mut Cell {
         &mut self.cells[x + y * 9]
+    }
+
+    fn show_notes(&self) {
+        for row in 0..9 {
+            for line in 0..3 {
+                if line == 0 {
+                    if row % 3 == 0 {
+                        println!("+---+---+---+---+---+---+---+---+---+")
+                    } else {
+                        println!("+...+...+...+...+...+...+...+...+...+")
+                    }
+                }
+                for col in 0..9 {
+                    let cell = self.get(col, row);
+                    for num in 0..3 {
+                        if num == 0 {
+                            if col % 3 == 0 {
+                                print!("|");
+                            } else {
+                                print!(":");
+                            }
+                        }
+                        let num = (line * 3) + num + 1;
+                        if cell.allows(num) {
+                            print!("{}", num);
+                        } else {
+                            print!(" ");
+                        }
+                    }
+                }
+                println!("|")
+            }
+        }
+        println!("+---+---+---+---+---+---+---+---+---+")
     }
 
     fn show(&self) {
@@ -233,6 +268,7 @@ impl Game {
             }
 
             if score == last_score {
+                self.show_notes();
                 return Err("failure");
             }
 
@@ -303,7 +339,7 @@ fn solve(data: &str) -> bool {
 
 fn main() {
     //let mut loader = Loader::new("./data/small.csv");
-    let mut loader = Loader::new("./data/sudoku.csv");
+    let mut loader = Loader::new("./data/sudoku-3m.csv");
 
     let mut passed = 0;
     let mut total = 0;
@@ -315,7 +351,7 @@ fn main() {
                 if solve(&data) {
                     passed = passed + 1
                 } else {
-                    println!("failed: {}", data)
+                    println!("failed: {}", data);
                 }
                 total = total + 1
             }
