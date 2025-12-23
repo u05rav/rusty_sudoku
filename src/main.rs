@@ -1,3 +1,4 @@
+use clap::Parser;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -451,11 +452,22 @@ fn solve(data: &str) -> bool {
     return solved && correct;
 }
 
+#[derive(Parser, Debug)]
+struct Args {
+    #[arg(short, long)]
+    filename: String,
+}
+
 fn main() {
     //let mut loader = Loader::new("./data/small.csv");
     //let mut loader = Loader::new("./data/sudoku.csv");
-    let mut loader = Loader::new("./data/sudoku-3m.csv");
+    //let mut loader = Loader::new("./data/sudoku-3m.csv");
 
+    let args = Args::parse();
+
+    println!("loading from {}", args.filename);
+
+    let mut loader = Loader::new(&args.filename);
     let mut passed = 0;
     let mut total = 0;
     loop {
