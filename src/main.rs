@@ -98,9 +98,9 @@ impl Game {
             for line in 0..3 {
                 if line == 0 {
                     if row % 3 == 0 {
-                        println!("+---+---+---+---+---+---+---+---+---+")
+                        println!("+------+------+------+------+------+------+------+------+------+")
                     } else {
-                        println!("+...+...+...+...+...+...+...+...+...+")
+                        println!("+......+......+......+......+......+......+......+......+......+")
                     }
                 }
                 for col in 0..9 {
@@ -115,16 +115,16 @@ impl Game {
                         }
                         let num = (line * 3) + num + 1;
                         if cell.allows(&num) {
-                            print!("{}", num);
+                            print!("{} ", num);
                         } else {
-                            print!(" ");
+                            print!("  ");
                         }
                     }
                 }
                 println!("|")
             }
         }
-        println!("+---+---+---+---+---+---+---+---+---+")
+        println!("+------+------+------+------+------+------+------+------+------+")
     }
 
     fn show(&self) {
@@ -338,8 +338,8 @@ fn solve(data: &str) -> bool {
 }
 
 fn main() {
-    let mut loader = Loader::new("./data/small.csv");
-    //let mut loader = Loader::new("./data/sudoku-3m.csv");
+    //let mut loader = Loader::new("./data/small.csv");
+    let mut loader = Loader::new("./data/sudoku-3m.csv");
 
     let mut passed = 0;
     let mut total = 0;
@@ -352,6 +352,7 @@ fn main() {
                     passed = passed + 1
                 } else {
                     println!("failed: {}", data);
+                    exit(1)
                 }
                 total = total + 1
             }
