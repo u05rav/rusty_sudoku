@@ -1,8 +1,7 @@
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::process::exit;
-use std::collections::HashSet;
-
 
 #[derive(PartialEq)]
 struct Coord {
@@ -51,10 +50,10 @@ impl Cell {
     }
 
     fn possible_values(&self) -> HashSet<usize> {
-        let mut hs : HashSet<usize> = HashSet::new();
+        let mut hs: HashSet<usize> = HashSet::new();
         for v in 0_usize..9_usize {
-            if self.possible_values[v]{
-                hs.insert(v+1);
+            if self.possible_values[v] {
+                hs.insert(v + 1);
             }
         }
         hs
@@ -269,7 +268,6 @@ impl Game {
             }
         }
 
-
         for c in 0_usize..81_usize {
             let self_row = c / 9;
             let self_col = c % 9;
@@ -279,16 +277,27 @@ impl Game {
 
             let possible_values = self.cells[c].possible_values();
 
-            let mut matches : Vec<Coord> = Vec::new();
+            let mut matches: Vec<Coord> = Vec::new();
             for col in 0_usize..9_usize {
                 let compare_possible_values = self.get(&col, &self_row).possible_values();
-                if compare_possible_values.difference(&possible_values).collect::<Vec<&usize>>().len() == 0 {
-                    matches.push(Coord{x: col, y: self_row});
+                if compare_possible_values
+                    .difference(&possible_values)
+                    .collect::<Vec<&usize>>()
+                    .len()
+                    == 0
+                {
+                    matches.push(Coord {
+                        x: col,
+                        y: self_row,
+                    });
                 }
             }
             if matches.len() > 1 && matches.len() == possible_values.len() {
                 for col in 0_usize..0_usize {
-                    let coord = Coord{x: col, y: self_row};
+                    let coord = Coord {
+                        x: col,
+                        y: self_row,
+                    };
 
                     if !matches.contains(&coord) {
                         for n in &possible_values {
@@ -298,21 +307,60 @@ impl Game {
                 }
             }
 
-
-            let mut matches : Vec<Coord> = Vec::new();
+            let mut matches: Vec<Coord> = Vec::new();
             for row in 0_usize..9_usize {
                 let compare_possible_values = self.get(&self_col, &row).possible_values();
-                if compare_possible_values.difference(&possible_values).collect::<Vec<&usize>>().len() == 0 {
-                    matches.push(Coord{x: self_col, y: row});
+                if compare_possible_values
+                    .difference(&possible_values)
+                    .collect::<Vec<&usize>>()
+                    .len()
+                    == 0
+                {
+                    matches.push(Coord {
+                        x: self_col,
+                        y: row,
+                    });
                 }
             }
             if matches.len() > 1 && matches.len() == possible_values.len() {
                 for row in 0_usize..0_usize {
-                    let coord = Coord{x: self_col, y: row};
+                    let coord = Coord {
+                        x: self_col,
+                        y: row,
+                    };
 
                     if !matches.contains(&coord) {
                         for n in &possible_values {
                             self.get_mut(&self_col, &row).eliminate(&n);
+                        }
+                    }
+                }
+            }
+
+            let mut matches: Vec<Coord> = Vec::new();
+            for col in self_block_col..self_block_col + 3 {
+                for row in self_block_row..self_block_row + 3 {
+                    let compare_possible_values = self.get(&col, &row).possible_values();
+                    if compare_possible_values
+                        .difference(&possible_values)
+                        .collect::<Vec<&usize>>()
+                        .len()
+                        == 0
+                    {
+                        matches.push(Coord { x: col, y: row });
+                    }
+                }
+            }
+
+            if matches.len() > 1 && matches.len() == possible_values.len() {
+                for col in self_block_col..self_block_col + 3 {
+                    for row in self_block_row..self_block_row + 3 {
+                        let coord = Coord { x: col, y: row };
+
+                        if !matches.contains(&coord) {
+                            for n in &possible_values {
+                                self.get_mut(&col, &row).eliminate(&n);
+                            }
                         }
                     }
                 }
@@ -406,7 +454,8 @@ fn solve(data: &str) -> bool {
 }
 
 fn main() {
-    let mut loader = Loader::new("./data/small.csv");
+    //let mut loader = Loader::new("./data/small.csv");
+    let mut loader = Loader::new("./data/sudoku.csv");
     //let mut loader = Loader::new("./data/sudoku-3m.csv");
 
     let mut passed = 0;
