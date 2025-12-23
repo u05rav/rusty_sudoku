@@ -165,9 +165,7 @@ impl Game {
         let mut score = 0;
         for j in 0_usize..9_usize {
             for i in 0_usize..9_usize {
-                if self.get(&i, &j).get_current_val() == 0 {
-                    score = score + 1
-                }
+                score = score + self.get(&i, &j).possible_values().len()
             }
         }
         score
@@ -379,7 +377,7 @@ impl Game {
             self.iterate();
             let score = self.score();
 
-            if score == 0 {
+            if score == 9 * 9 {
                 return Ok("success");
             }
 
@@ -455,8 +453,8 @@ fn solve(data: &str) -> bool {
 
 fn main() {
     //let mut loader = Loader::new("./data/small.csv");
-    let mut loader = Loader::new("./data/sudoku.csv");
-    //let mut loader = Loader::new("./data/sudoku-3m.csv");
+    //let mut loader = Loader::new("./data/sudoku.csv");
+    let mut loader = Loader::new("./data/sudoku-3m.csv");
 
     let mut passed = 0;
     let mut total = 0;
