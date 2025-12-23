@@ -17,7 +17,7 @@ impl Cell {
 
     fn get_current_val(&self) -> usize {
         let mut pos: Vec<usize> = Vec::new();
-        for i in 0..9 {
+        for i in 0_usize..9_usize {
             if self.possible_values[i] {
                 pos.push(i + 1)
             }
@@ -27,19 +27,19 @@ impl Cell {
         }
         return 0;
     }
-    fn eliminate(&mut self, val: usize) {
-        self.possible_values[(val as usize) - 1] = false
+    fn eliminate(&mut self, val: &usize) {
+        self.possible_values[val - 1] = false
     }
 
-    fn allows(&self, val: usize) -> bool {
-        self.possible_values[(val as usize) - 1]
+    fn allows(&self, val: &usize) -> bool {
+        self.possible_values[val - 1]
     }
 
-    fn set(&mut self, val: usize) {
+    fn set(&mut self, val: &usize) {
         for i in 0..9 {
             self.possible_values[i] = false;
         }
-        self.possible_values[(val as usize) - 1] = true
+        self.possible_values[val - 1] = true
     }
 }
 
@@ -56,18 +56,18 @@ impl Game {
     }
 
     fn load(&mut self, data: &str) {
-        for cell in 0..81 {
+        for cell in 0_usize..81_usize {
             let num = data
                 .chars()
                 .nth(cell)
                 .expect("should be char")
                 .to_digit(10)
-                .expect("shoud work");
+                .expect("shoud work") as usize;
 
             if num > 0 {
-                for possible_val in 1..10 {
+                for possible_val in 1_usize..10_usize {
                     if possible_val != num {
-                        self.cells[cell].eliminate(possible_val as usize);
+                        self.cells[cell].eliminate(&possible_val);
                     }
                 }
             }
@@ -85,11 +85,11 @@ impl Game {
         }
     }
 
-    fn get(&self, x: usize, y: usize) -> &Cell {
+    fn get(&self, x: &usize, y: &usize) -> &Cell {
         &self.cells[x + y * 9]
     }
 
-    fn get_mut(&mut self, x: usize, y: usize) -> &mut Cell {
+    fn get_mut(&mut self, x: &usize, y: &usize) -> &mut Cell {
         &mut self.cells[x + y * 9]
     }
 
@@ -104,8 +104,8 @@ impl Game {
                     }
                 }
                 for col in 0..9 {
-                    let cell = self.get(col, row);
-                    for num in 0..3 {
+                    let cell = self.get(&col, &row);
+                    for num in 0_usize..3_usize {
                         if num == 0 {
                             if col % 3 == 0 {
                                 print!("|");
@@ -114,7 +114,7 @@ impl Game {
                             }
                         }
                         let num = (line * 3) + num + 1;
-                        if cell.allows(num) {
+                        if cell.allows(&num) {
                             print!("{}", num);
                         } else {
                             print!(" ");
@@ -128,15 +128,15 @@ impl Game {
     }
 
     fn show(&self) {
-        for j in 0..9 {
+        for j in 0_usize..9_usize {
             if j % 3 == 0 {
                 println!("+-----------+");
             }
-            for i in 0..9 {
+            for i in 0_usize..9_usize {
                 if i % 3 == 0 {
                     print!("|");
                 }
-                print!("{}", self.get(i, j).get_current_val());
+                print!("{}", self.get(&i, &j).get_current_val());
             }
 
             print!("|\n");
@@ -146,9 +146,9 @@ impl Game {
 
     fn score(&self) -> usize {
         let mut score = 0;
-        for j in 0..9 {
-            for i in 0..9 {
-                if self.get(i, j).get_current_val() == 0 {
+        for j in 0_usize..9_usize {
+            for i in 0_usize..9_usize {
+                if self.get(&i, &j).get_current_val() == 0 {
                     score = score + 1
                 }
             }
@@ -164,20 +164,20 @@ impl Game {
             let self_block_row = (self_row / 3) * 3;
             let self_block_col = (self_col / 3) * 3;
 
-            for col in 0..9 {
+            for col in 0_usize..9_usize {
                 if col != self_col {
-                    let current_val = self.get(col, self_row).get_current_val();
+                    let current_val = self.get(&col, &self_row).get_current_val();
                     if current_val != 0 {
-                        self.cells[c].eliminate(current_val)
+                        self.cells[c].eliminate(&current_val)
                     }
                 }
             }
 
-            for row in 0..9 {
+            for row in 0_usize..9_usize {
                 if row != self_row {
-                    let current_val = self.get(self_col, row).get_current_val();
+                    let current_val = self.get(&self_col, &row).get_current_val();
                     if current_val != 0 {
-                        self.cells[c].eliminate(current_val)
+                        self.cells[c].eliminate(&current_val)
                     }
                 }
             }
@@ -187,57 +187,57 @@ impl Game {
                     if col == self_col && row == self_row {
                         continue;
                     }
-                    let current_val = self.get(col, row).get_current_val();
+                    let current_val = self.get(&col, &row).get_current_val();
                     if current_val != 0 {
-                        self.cells[c].eliminate(current_val)
+                        self.cells[c].eliminate(&current_val)
                     }
                 }
             }
         }
 
-        for col in 0..9 {
-            for num in 1..10 {
+        for col in 0_usize..9_usize {
+            for num in 1_usize..10_usize {
                 let mut count = 0;
-                let mut hit = 10;
-                for row in 0..9 {
-                    if self.get(col, row).allows(num) {
+                let mut hit = 10_usize;
+                for row in 0_usize..9_usize {
+                    if self.get(&col, &row).allows(&num) {
                         count = count + 1;
                         hit = row;
                     }
                 }
                 if count == 1 {
-                    self.set(col, hit, num)
+                    self.set(&col, &hit, &num)
                 }
             }
         }
 
-        for row in 0..9 {
-            for num in 1..10 {
+        for row in 0_usize..9_usize {
+            for num in 1_usize..10_usize {
                 let mut count = 0;
-                let mut hit = 10;
-                for col in 0..9 {
-                    if self.get(col, row).allows(num) {
+                let mut hit = 10_usize;
+                for col in 0_usize..9_usize {
+                    if self.get(&col, &row).allows(&num) {
                         count = count + 1;
                         hit = col;
                     }
                 }
                 if count == 1 {
-                    self.set(hit, row, num)
+                    self.set(&hit, &row, &num)
                 }
             }
         }
 
-        for block_col_start in [0, 3, 6] {
-            for block_row_start in [0, 3, 6] {
-                for num in 1..10 {
+        for block_col_start in [0_usize, 3_usize, 6_usize] {
+            for block_row_start in [0_usize, 3_usize, 6_usize] {
+                for num in 1_usize..10_usize {
                     let mut count = 0;
                     let mut hit_col = 10;
                     let mut hit_row = 10;
-                    for col_offset in [0, 1, 2] {
-                        for row_offset in [0, 1, 2] {
+                    for col_offset in [0_usize, 1_usize, 2_usize] {
+                        for row_offset in [0_usize, 1_usize, 2_usize] {
                             let x = block_col_start + col_offset;
                             let y = block_row_start + row_offset;
-                            if self.get(x, y).allows(num) {
+                            if self.get(&x, &y).allows(&num) {
                                 count = count + 1;
                                 hit_col = x;
                                 hit_row = y;
@@ -245,14 +245,14 @@ impl Game {
                         }
                     }
                     if count == 1 {
-                        self.set(hit_col, hit_row, num)
+                        self.set(&hit_col, &hit_row, &num)
                     }
                 }
             }
         }
     }
 
-    fn set(&mut self, col: usize, row: usize, num: usize) {
+    fn set(&mut self, col: &usize, row: &usize, num: &usize) {
         self.get_mut(col, row).set(num);
     }
 
@@ -338,8 +338,8 @@ fn solve(data: &str) -> bool {
 }
 
 fn main() {
-    //let mut loader = Loader::new("./data/small.csv");
-    let mut loader = Loader::new("./data/sudoku-3m.csv");
+    let mut loader = Loader::new("./data/small.csv");
+    //let mut loader = Loader::new("./data/sudoku-3m.csv");
 
     let mut passed = 0;
     let mut total = 0;
