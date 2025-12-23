@@ -1,6 +1,8 @@
 use clap::Parser;
 use std::collections::HashSet;
 use std::fs::File;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::io::{self, BufRead};
 use std::process::exit;
 
@@ -383,7 +385,6 @@ impl Game {
             }
 
             if score == last_score {
-                self.show_notes();
                 return Err("failure");
             }
 
@@ -458,7 +459,7 @@ struct Args {
     filename: String,
 }
 
-fn main() {
+fn main() -> std::io::Result<()> {
     //let mut loader = Loader::new("./data/small.csv");
     //let mut loader = Loader::new("./data/sudoku.csv");
     //let mut loader = Loader::new("./data/sudoku-3m.csv");
@@ -466,8 +467,14 @@ fn main() {
     let args = Args::parse();
 
     println!("loading from {}", args.filename);
-
     let mut loader = Loader::new(&args.filename);
+
+    let mut failure_file = OpenOptions::new()
+        .append(false) // Enable append mode
+        .write(true)
+        .create(true) // Create the file if it doesn't exist
+        .open("failures.csv")?;
+
     let mut passed = 0;
     let mut total = 0;
     loop {
@@ -478,8 +485,7 @@ fn main() {
                 if solve(&data) {
                     passed = passed + 1
                 } else {
-                    println!("failed: {}", data);
-                    exit(1)
+                    write!(&failure_file, "{}", data)?
                 }
                 total = total + 1
             }
