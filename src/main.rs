@@ -4,7 +4,6 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::io::{self, BufRead};
-use std::process::exit;
 
 #[derive(PartialEq)]
 struct Coord {
@@ -436,7 +435,7 @@ impl Loader {
     }
 }
 
-fn solve(data: &str) -> bool {
+fn solve(data: &str, show_on_fail: bool) -> bool {
     let mut game = Game::new();
     game.load(&data);
 
@@ -450,22 +449,16 @@ fn solve(data: &str) -> bool {
         Err(_) => false,
     };
 
+    if show_on_fail {
+        game.show_notes()
+    }
     return solved && correct;
 }
 
-#[derive(Parser, Debug)]
-struct Args {
-    #[arg(short, long)]
-    filename: String,
-}
-
-fn main() -> std::io::Result<()> {
-    let args = Args::parse();
-
-    println!("loading from {}", args.filename);
-    let mut loader = Loader::new(&args.filename);
-
-    let mut failure_file = OpenOptions::new()
+fn solve_file(filename: &str) -> std::io::Result<()> {
+    println!("loading from {}", filename);
+    let mut loader = Loader::new(&filename);
+    let failure_file = OpenOptions::new()
         .append(false) // Enable append mode
         .write(true)
         .create(true) // Create the file if it doesn't exist
@@ -478,7 +471,7 @@ fn main() -> std::io::Result<()> {
 
         match loader.get_line() {
             Ok(data) => {
-                if solve(&data) {
+                if solve(&data, false) {
                     passed = passed + 1
                 } else {
                     write!(&failure_file, "{}", data)?
@@ -487,8 +480,41 @@ fn main() -> std::io::Result<()> {
             }
             Err(_) => {
                 println!("results = {}/{}", passed, total);
-                exit(0);
+                return Ok(());
             }
+        }
+    }
+}
+
+fn solve_data(data: &str) -> std::io::Result<()> {
+    println!("Solving {}", data);
+    if solve(&data, true) {
+        println!("solved!")
+    }
+    Ok(())
+}
+
+#[derive(Parser, Debug)]
+struct Args {
+    #[arg(short, long)]
+    filename: Option<String>,
+
+    #[arg(short, long)]
+    data: Option<String>,
+}
+fn main() -> std::io::Result<()> {
+    let args = Args::parse();
+
+    match (args.filename, args.data) {
+        (Some(filename), None) => solve_file(&filename),
+        (None, Some(data)) => solve_data(&data),
+        (Some(_), Some(_)) => {
+            println!("Cannopnt specifcy filenaame and Data");
+            Ok(())
+        }
+        (None, None) => {
+            println!("Please Sepcify Data To Solve");
+            Ok(())
         }
     }
 }
