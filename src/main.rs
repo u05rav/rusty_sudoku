@@ -5,7 +5,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::io::{self, BufRead};
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 struct Coord {
     pub x: usize,
     pub y: usize,
@@ -280,6 +280,7 @@ impl Game {
             let mut matches: Vec<Coord> = Vec::new();
             for col in 0_usize..9_usize {
                 let compare_possible_values = self.get(&col, &self_row).possible_values();
+
                 if compare_possible_values
                     .difference(&possible_values)
                     .collect::<Vec<&usize>>()
@@ -293,7 +294,7 @@ impl Game {
                 }
             }
             if matches.len() > 1 && matches.len() == possible_values.len() {
-                for col in 0_usize..0_usize {
+                for col in 0_usize..9_usize {
                     let coord = Coord {
                         x: col,
                         y: self_row,
@@ -323,7 +324,7 @@ impl Game {
                 }
             }
             if matches.len() > 1 && matches.len() == possible_values.len() {
-                for row in 0_usize..0_usize {
+                for row in 0_usize..9_usize {
                     let coord = Coord {
                         x: self_col,
                         y: row,
